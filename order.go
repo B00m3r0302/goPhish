@@ -13,3 +13,5 @@
 12. testing and debugging
 14. documentation /docs:wq
 
+TODO hashing logic in user.go
+verification logic in user.go
