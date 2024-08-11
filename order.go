@@ -15,3 +15,4 @@
 
 TODO hashing logic in user.go
 verification logic in user.go
+add connection handling logic to listener.go
