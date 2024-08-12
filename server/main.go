@@ -1,57 +1,81 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"goPhish/server/config"
+	"your_project/server"
+	"your_project/server/config"
 
-	"github.com/B00m3r0302/goPhish/server/config"
-	"honnef.co/go/tools/config"
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
-// Main function initializes the configuration and starts both HTTP and HTTPS servers
 func main() {
-	// Load configuration settings
-	config.LoadConfig()
-
-	// Define a simple handler function for demonstration
-	http.Handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Handle requests and send a response
-		fmd.Fprintln(w, "Hello World!")
+	// Initialize the logger
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
 	})
+	logger.SetLevel(logrus.InfoLevel)
 
-	// Set up the HTTP server
-	httpServer := &http.Server{
-		Addr:           ":" + config.AppConfig.HTTPServerPort,
-		Handler:        httpHandler,
-		ReadTimeout:    config.AppConfig.ReadTimeout,
-		WriteTimeout:   config.AppConfig.WriteTimeout,
-		IdleTimeout:    config.AppConfig.IdleTimeout,
-		MaxHeaderBytes: config.AppConfig.MaxHeaderBytes,
+	// Load configuration using Viper and set up file watcher
+	cfg, err := config.LoadConfig("server/config/config.yaml")
+	if err != nil {
+		logger.WithError(err).Fatal("Failed to load configuration")
 	}
+	logger.WithField("config", cfg).Info("Configuration loaded successfully")
 
-	// Start HTTP server in a separate goroutine
+	// Set up the router using Gin
+	router := server.SetupRouter()
+
+	// Determine if the server should run in HTTP or HTTPS mode based on config
 	go func() {
-		log.Printf("Starting HTTP server on port %s", config.AppConfig.HTTPServerPort)
-		if err := httpServer.ListenAndServe(); err != nil {
-			log.Fatalf("HTTP server failed: %s", err)
+		if cfg.Server.UseHTTPS {
+			logger.WithField("port", cfg.Server.HTTPSPort).Info("Starting HTTPS server")
+			if err := router.RunTLS(":"+cfg.Server.HTTPSPort, cfg.Server.TLSCertFile, cfg.Server.TLSKeyFile); err != nil {
+				logger.WithError(err).Fatal("Failed to start HTTPS server")
+			}
+		} else {
+			logger.WithField("port", cfg.Server.HTTPPort).Info("Starting HTTP server")
+			if err := router.Run(":" + cfg.Server.HTTPPort); err != nil {
+				logger.WithError(err).Fatal("Failed to start HTTP server")
+			}
 		}
 	}()
 
-	// Setup the HTTPS server
-	httpServer := &http.Server{
-		Addr:           ":" + config.AppConfig.HTTPSServerPort,
-		Handler:        httpHandler,
-		ReadTimeout:    config.AppConfig.ReadTimeout,
-		WriteTimeout:   config.AppConfig.WriteTimeout,
-		IdleTimeout:    config.AppConfig.IdleTimeout,
-		MaxHeaderBytes: config.AppConfig.MaxHeaderBytes,
-	}
+	// Graceful shutdown handling
+	gracefulShutdown(router, logger)
+}
 
-	// Start HTTPS server
-	log.Printf("Starting HTTPS server on port %s", config.AppConfig.HTTPSServerPort)
-	if err := httpsServer.ListenAndServeTLS(config.AppConfig.TLSCertFile, config.AppConfig.TLSKeyFile); err != nil {
-		log.Fatalf("HTTPS server failed %s", err)
+// gracefulShutdown handles server shutdown on system interrupt or termination signals
+func gracefulShutdown(router *gin.Engine, logger *logrus.Logger) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	logger.Info("Shutting down server...")
+
+	// Allow a grace period for ongoing requests to complete
+	timeout := time.Second * 10
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+
+	shutdownChan := make(chan struct{})
+
+	go func() {
+		if err := router.Shutdown(nil); err != nil {
+			logger.WithError(err).Error("Server forced to shutdown")
+		}
+		close(shutdownChan)
+	}()
+
+	select {
+	case <-timer.C:
+		logger.Warn("Timeout reached, forcing shutdown")
+	case <-shutdownChan:
+		logger.Info("Server gracefully stopped")
 	}
 }
