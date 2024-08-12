@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  title: C2 Server API
+  description: This is the API documentation for the C2 Server framework.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8888/api/v1
+    description: Local development server
+tags:
+  - name: Agents
+    description: Operations related to agents
+  - name: Commands
+    description: Operations related to commands
+  - name: Listeners
+    description: Operations related to listeners
+  - name: Users
+    description: Operations related to users
+paths:
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Creates a new user with the specified details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input
+        '500':
+          description: Failed to create user
+  /users/authenticate:
+    post:
+      tags:
+        - Users
+      summary: Authenticate a user
+      description: Authenticates a user with the specified credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Authentication failed
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Retrieve an existing user
+      description: Retrieves a user by their ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+components:
+  schemas:
+    UserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username for the new user
+        password:
+          type: string
+          description: Password for the new user
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AuthRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        password:
+          type: string
+          description: Password of the user
+    AuthResponse:
+      type: object
+      properties:
+        userID:
+          type: integer
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
