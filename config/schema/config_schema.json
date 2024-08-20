@@ -1,0 +1,284 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "goPhish C2 Framework Configuration Schema",
+  "description": "This schema defines the structure and constraints for the goPhish C2 framework configuration file.",
+  "type": "object",
+  "properties": {
+    "server": {
+      "type": "object",
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "The port on which the HTTP server will listen."
+        },
+        "read_timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Maximum duration for reading the entire request."
+        },
+        "write_timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Maximum duration for writing the response."
+        },
+        "idle_timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Maximum amount of time to wait for the next request."
+        },
+        "shutdown_timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Timeout for graceful shutdown of the server."
+        }
+      },
+      "required": ["port", "read_timeout", "write_timeout", "idle_timeout", "shutdown_timeout"]
+    },
+    "database": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["mysql", "postgresql", "sqlite"],
+          "description": "Type of database."
+        },
+        "host": {
+          "type": "string",
+          "description": "Database host."
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Port number for the database connection."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the database."
+        },
+        "user": {
+          "type": "string",
+          "description": "Username for the database connection."
+        },
+        "password": {
+          "type": "string",
+          "description": "Password for the database connection."
+        },
+        "max_open_connections": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of open connections to the database."
+        },
+        "max_idle_connections": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of idle connections in the pool."
+        },
+        "connection_max_lifetime": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Maximum amount of time a connection may be reused."
+        }
+      },
+      "required": ["type", "host", "port", "name", "user", "password", "max_open_connections", "max_idle_connections", "connection_max_lifetime"]
+    },
+    "websocket": {
+      "type": "object",
+      "properties": {
+        "max_message_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum message size allowed from clients (in bytes)."
+        },
+        "read_buffer_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Size of the read buffer for WebSocket connections."
+        },
+        "write_buffer_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Size of the write buffer for WebSocket connections."
+        },
+        "ping_interval": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Interval for sending pings to check connection status."
+        },
+        "pong_timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Timeout duration to wait for a pong response."
+        }
+      },
+      "required": ["max_message_size", "read_buffer_size", "write_buffer_size", "ping_interval", "pong_timeout"]
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "description": "Logging level."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "text"],
+          "description": "Log output format."
+        },
+        "output": {
+          "type": "string",
+          "description": "Log file path or 'stdout' for console output."
+        },
+        "max_size": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum size of log file before rotation (in MB)."
+        },
+        "max_backups": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of old log files to keep."
+        },
+        "max_age": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of days to retain old log files."
+        }
+      },
+      "required": ["level", "format", "output", "max_size", "max_backups", "max_age"]
+    },
+    "cors": {
+      "type": "object",
+      "properties": {
+        "allowed_origins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed origins for CORS."
+        },
+        "allowed_methods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "DELETE"]
+          },
+          "description": "Allowed HTTP methods for CORS."
+        },
+        "allowed_headers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed HTTP headers for CORS."
+        },
+        "allow_credentials": {
+          "type": "boolean",
+          "description": "Allow sending credentials (e.g., cookies, auth headers)."
+        }
+      },
+      "required": ["allowed_origins", "allowed_methods", "allowed_headers", "allow_credentials"]
+    },
+    "api": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "API version."
+        },
+        "title": {
+          "type": "string",
+          "description": "API title."
+        },
+        "description": {
+          "type": "string",
+          "description": "API description."
+        },
+        "base_path": {
+          "type": "string",
+          "description": "Base path for all API routes."
+        },
+        "docs_path": {
+          "type": "string",
+          "description": "Path to serve API documentation."
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Contact name."
+            },
+            "url": {
+              "type": "string",
+              "description": "Contact URL."
+            },
+            "email": {
+              "type": "string",
+              "description": "Contact email."
+            }
+          },
+          "required": ["name", "url", "email"]
+        },
+        "license": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "License name."
+            },
+            "url": {
+              "type": "string",
+              "description": "License URL."
+            }
+          },
+          "required": ["name", "url"]
+        }
+      },
+      "required": ["version", "title", "description", "base_path", "docs_path", "contact", "license"]
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "enable_tls": {
+          "type": "boolean",
+          "description": "Enable TLS/SSL for secure connections."
+        },
+        "tls_cert_file": {
+          "type": "string",
+          "description": "Path to TLS certificate file."
+        },
+        "tls_key_file": {
+          "type": "string",
+          "description": "Path to TLS key file."
+        }
+      },
+      "required": ["enable_tls", "tls_cert_file", "tls_key_file"]
+    },
+    "other_settings": {
+      "type": "object",
+      "properties": {
+        "session_timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smhd]$",
+          "description": "Duration for user session timeouts."
+        },
+        "max_login_attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of login attempts before lockout."
+        },
+        "admin_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Admin email for system notifications."
+        }
+      },
+      "required": ["session_timeout", "max_login_attempts", "admin_email"]
+    }
+  },
+  "required": ["server", "database", "websocket", "logging", "cors", "api", "security", "other_settings"]
+}
