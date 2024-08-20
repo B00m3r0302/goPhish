@@ -1,0 +1,83 @@
+# config.yaml - Configuration file for the goPhish C2 framework
+# Author: Hudson Woomer
+# Description: This file contains all necessary configurations for the goPhish
+# C2 framework, including server settings, database connections, WebSocket settings,
+# logging, and other essential configurations.
+
+# Server configuration
+server:
+  port: 7777                       # The port on which the HTTP server will listen
+  read_timeout: 15s                # Maximum duration for reading the entire request
+  write_timeout: 15s               # Maximum duration for writing the response
+  idle_timeout: 60s                # Maximum amount of time to wait for the next request
+  shutdown_timeout: 10s            # Timeout for graceful shutdown of the server
+
+# Database configuration
+database:
+  type: "mysql"                    # Type of database (e.g., mysql, postgresql, sqlite)
+  host: "localhost"                # Database host (e.g., localhost, remote IP)
+  port: 3306                       # Port number for the database connection
+  name: "gophish"                  # Name of the database to use
+  user: "gophish_user"             # Username for the database connection
+  password: "gophish_password"     # Password for the database connection
+  max_open_connections: 10         # Maximum number of open connections to the database
+  max_idle_connections: 5          # Maximum number of idle connections in the pool
+  connection_max_lifetime: 1h      # Maximum amount of time a connection may be reused
+
+# WebSocket configuration
+websocket:
+  max_message_size: 8192           # Maximum message size allowed from clients (in bytes)
+  read_buffer_size: 1024           # Size of the read buffer for WebSocket connections
+  write_buffer_size: 1024          # Size of the write buffer for WebSocket connections
+  ping_interval: 60s               # Interval for sending pings to check connection status
+  pong_timeout: 10s                # Timeout duration to wait for a pong response
+
+# Logging configuration
+logging:
+  level: "info"                    # Logging level (e.g., debug, info, warn, error)
+  format: "json"                   # Log output format (e.g., json, text)
+  output: "logs/gophish.log"       # Log file path or "stdout" for console output
+  max_size: 50                     # Maximum size of log file before rotation (in MB)
+  max_backups: 7                   # Maximum number of old log files to keep
+  max_age: 30                      # Maximum number of days to retain old log files
+
+# CORS configuration (Cross-Origin Resource Sharing)
+cors:
+  allowed_origins:
+    - "http://localhost:3000"      # Allowed origins for frontend (ReactJS app)
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+  allowed_headers:
+    - "Content-Type"
+    - "Authorization"
+  allow_credentials: true          # Allow sending credentials (e.g., cookies, auth headers)
+
+# API Documentation (Optional - If using Swagger/OpenAPI)
+api:
+  version: "1.0.0"
+  title: "goPhish C2 API"
+  description: "API documentation for goPhish C2 framework"
+  base_path: "/api/v1"             # Base path for all API routes
+  docs_path: "/docs"               # Path to serve API documentation (if applicable)
+  contact:
+    name: "API Support"
+    url: "http://gophish.local/support"
+    email: "support@gophish.local"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+
+# Security settings (e.g., TLS/SSL)
+security:
+  enable_tls: false                # Enable TLS/SSL for secure connections (true/false)
+  tls_cert_file: "config/tls/cert.pem"  # Path to TLS certificate file
+  tls_key_file: "config/tls/key.pem"    # Path to TLS key file
+
+# Other settings (Add any other configuration necessary)
+other_settings:
+  session_timeout: 24h             # Duration for user session timeouts
+  max_login_attempts: 5            # Maximum number of login attempts before lockout
+  admin_email: "admin@gophish.local"    # Email address for administrative notifications
