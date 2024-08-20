@@ -1,0 +1,82 @@
+# default.yaml - Default configuration file for the goPhish C2 framework
+# Author: Hudson Woomer
+# Description: This file contains default configurations for the goPhish C2
+# framework, which can be overridden by environment-specific configurations.
+
+# Server configuration
+server:
+  port: 7777                       # Default port for the HTTP server
+  read_timeout: 15s                # Default maximum duration for reading the entire request
+  write_timeout: 15s               # Default maximum duration for writing the response
+  idle_timeout: 60s                # Default maximum amount of time to wait for the next request
+  shutdown_timeout: 10s            # Default timeout for graceful shutdown of the server
+
+# Database configuration
+database:
+  type: "mysql"                    # Default database type
+  host: "localhost"                # Default database host
+  port: 3306                       # Default database port
+  name: "gophish"                  # Default database name
+  user: "gophish_user"             # Default database user
+  password: "gophish_password"     # Default database password
+  max_open_connections: 10         # Default maximum number of open connections
+  max_idle_connections: 5          # Default maximum number of idle connections
+  connection_max_lifetime: 1h      # Default maximum lifetime of a connection
+
+# WebSocket configuration
+websocket:
+  max_message_size: 8192           # Default maximum message size for WebSocket clients (in bytes)
+  read_buffer_size: 1024           # Default size of the read buffer
+  write_buffer_size: 1024          # Default size of the write buffer
+  ping_interval: 60s               # Default interval for sending pings
+  pong_timeout: 10s                # Default timeout duration for pong responses
+
+# Logging configuration
+logging:
+  level: "info"                    # Default logging level
+  format: "json"                   # Default log output format
+  output: "logs/gophish.log"       # Default log file path
+  max_size: 50                     # Default maximum size of log files before rotation (in MB)
+  max_backups: 7                   # Default maximum number of backups to retain
+  max_age: 30                      # Default maximum age of log files to retain (in days)
+
+# CORS configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"      # Default allowed origin (e.g., for frontend)
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+  allowed_headers:
+    - "Content-Type"
+    - "Authorization"
+  allow_credentials: true          # Default setting for allowing credentials
+
+# API Documentation
+api:
+  version: "1.0.0"                 # Default API version
+  title: "goPhish C2 API"          # Default API title
+  description: "API documentation for goPhish C2 framework"
+  base_path: "/api/v1"             # Default base path for API routes
+  docs_path: "/docs"               # Default path for serving API documentation
+  contact:
+    name: "API Support"
+    url: "http://gophish.local/support"
+    email: "support@gophish.local"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+
+# Security settings
+security:
+  enable_tls: false                # Default setting for TLS/SSL
+  tls_cert_file: "config/tls/cert.pem"  # Default path to TLS certificate file
+  tls_key_file: "config/tls/key.pem"    # Default path to TLS key file
+
+# Other settings
+other_settings:
+  session_timeout: 24h             # Default session timeout duration
+  max_login_attempts: 5            # Default maximum login attempts before lockout
+  admin_email: "admin@gophish.local"    # Default admin email for notifications
